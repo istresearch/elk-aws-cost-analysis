@@ -1,0 +1,23 @@
+# See this page for info about why we redirect the billing.csv file into the logstash command.
+# http://teknosrc.com/logstash-process-log-file-once-exit-stop-after-reading/
+
+version: '2'
+
+services:
+  elasticsearch:
+    image: elasticsearch:5
+    command: elasticsearch -E network.host=0.0.0.0 -E discovery.zen.minimum_master_nodes=1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  logstash:
+    image: logstash:5
+    command: bash -c "logstash --version -f /etc/logstash/conf.d/logstash.conf < /tmp/billing.csv"
+    volumes:
+      - ./logstash.conf:/etc/logstash/conf.d/logstash.conf
+      - ./template.json:/etc/logstash/templates/template.json
+      - ./billing.csv:/tmp/billing.csv
+  kibana:
+    image: kibana:5
+    ports:
+      - "5601:5601"
