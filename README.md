@@ -17,7 +17,7 @@ I download the billing data from S3 using the AWS CLI tool using the sync comman
 
     aws s3 sync s3://mybilling mybilling/.
 
-# Starting ELK:
+# Starting ELK
 Start up ElasticSearch and Kibana:
 
     docker-compose up -d elasticsearch kibana
@@ -41,3 +41,6 @@ Here is the shell script that is called a couple of times a day from cron, the `
     curl -Xdelete "https://<your ES cluster>/billing-qcr"
     docker-compose up logstash
     docker-compose down
+
+# Credit
+Thanks go to my co-worker https://github.com/madisonb who got the stub of this up and running for me one afternoon.
