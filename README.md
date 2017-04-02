@@ -1,17 +1,6 @@
 # elk-aws-cost-analysis
 Visualize your Amazon Web Services (AWS) costs using ElasticSearch, Logstash and Kibana (ELK) in Docker
 
-# Quick start
-Start up ElasticSearch and Kibana:
-
-    docker-compose up -d elasticsearch kibana
-
-Once ES and Kibana are up you can start feeding data into ES:
-
-    docker-compose up logstash
-
-Note that the billing file is expected to be in a file call "billing.csv".
-
 # Required environment variables
 The logstash.conf file depends on the following environment variables.  The values are not embedded in the file since that would expose them to the public via GitHub.  Create a ".env" file in the same directory as the docker-compose.yml file and docker-compose will automatically read the file.
 
@@ -27,3 +16,28 @@ Once you have configured your tags you will need to enable detailed billing file
 I download the billing data from S3 using the AWS CLI tool using the sync command from a bucket called "mybilling" that I setup following the instructions in the links above:
 
     aws s3 sync s3://mybilling mybilling/.
+
+# Starting ELK:
+Start up ElasticSearch and Kibana:
+
+    docker-compose up -d elasticsearch kibana
+
+Once ES and Kibana are up you can start feeding data into ES:
+
+    docker-compose up logstash
+
+Note that the billing file is expected to be in a file call "billing.csv".
+
+# How do I actually use this?
+I have an ES index running on a cluster all of the.  I happen to use ElasticCloud, but you can run it whereever you like.  A couple of times a day a cron job runs to sync the latest billing file from AWS to my server.  This cron job then deletes the previous index (why?  see below) and then rebuilds it from the latest billing file.
+
+Here is the shell script that is called a couple of times a day from cron, the `aws-cost` directory is where I keep this project:
+
+    cd ~/aws-cost
+    aws s3 sync s3://mybilling mybilling/.
+    # This needs to be improved, right now I update the next two lines each month to grab the right month's file.
+    unzip mybilling/999999999999-aws-billing-detailed-line-items-with-resources-and-tags-2017-03.csv.zip
+    mv 999999999999-aws-billing-detailed-line-items-with-resources-and-tags-2017-03.csv billing.csv
+    curl -Xdelete "https://<your ES cluster>/billing-qcr"
+    docker-compose up logstash
+    docker-compose down
