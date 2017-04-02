@@ -1,2 +1,29 @@
 # elk-aws-cost-analysis
-Visualize your AWS costs using ElasticSearch, Logstash and Kibana (ELK)
+Visualize your Amazon Web Services (AWS) costs using ElasticSearch, Logstash and Kibana (ELK) in Docker
+
+# Quick start
+Start up ElasticSearch and Kibana:
+
+    docker-compose up -d elasticsearch kibana
+
+Once ES and Kibana are up you can start feeding data into ES:
+
+    docker-compose up logstash
+
+Note that the billing file is expected to be in a file call "billing.csv".
+
+# Required environment variables
+The logstash.conf file depends on the following environment variables.  The values are not embedded in the file since that would expose them to the public via GitHub.  Create a ".env" file in the same directory as the docker-compose.yml file and docker-compose will automatically read the file.
+
+    LOGSTASH_ES_USER=[your ElasticSearch cluster username]  
+    LOGSTASH_ES_PWD=[your ElasticSearch cluster password]  
+    ES_HOST=[your ElasticSearch cluster hostname:port]  
+
+# Where do I get the billing data from?
+AWS can be setup to generate detailed billing information based on your usage.  You may specify tags for each of your systems if you want to split your billing data into your own logical configuration.  See https://aws.amazon.com/answers/account-management/aws-tagging-strategies/ and https://aws.amazon.com/blogs/aws/new-aws-resource-tagging-api/.  You will need to configure your tags as cost allocation tags as well, see http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html.
+
+Once you have configured your tags you will need to enable detailed billing file generation, see Detailed Billing Report with Resources and Tags in http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports.html#other-reports.
+
+I download the billing data from S3 using the AWS CLI tool using the sync command from a bucket called "mybilling" that I setup following the instructions in the links above:
+
+    aws s3 sync s3://mybilling mybilling/.
