@@ -44,3 +44,7 @@ Here is the shell script that is called a couple of times a day from cron, the `
 
 # Credit
 Thanks go to my co-worker https://github.com/madisonb who got the stub of this up and running for me one afternoon.
+
+# BIG FAT NOTE
+*This is not working right now since Elastic broke the ability to use environment variables in logstash.conf files.*
+https://github.com/elastic/logstash/issues/6696
